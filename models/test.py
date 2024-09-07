@@ -1,46 +1,16 @@
 import numpy as np
-from layers import Dense, MeanSquaredError, GradientDescent
-from model import Sequential
+from layers import Dense, SquaredError, GradientDescent, lr_schedule
+from model import Sequential, load_model
+import matplotlib.pyplot as plt
 
 def create_model():
     model = Sequential(output_shape=10)
 
-    W1 = np.array([[ 0.05421663, -0.05031676,  0.04557556, -0.0449351 ,  0.05332883,
-            -0.07608736,  0.07945246, -0.0922916 ,  0.09041622,  0.03618619],
-        [-0.02145754,  0.01853823,  0.0985296 , -0.01559457,  0.03136764,
-            -0.08760594,  0.03275956, -0.04716955,  0.04357596,  0.0724446 ],
-        [ 0.06254725, -0.07830551,  0.00319921, -0.08731412,  0.05706868,
-            0.06187677, -0.02681314, -0.07630683, -0.04749785,  0.06753383],
-        [-0.07054334, -0.09059814,  0.02148278,  0.00480814, -0.04203721,
-            -0.04802018, -0.08303062,  0.01534869, -0.07454771, -0.06390683],
-        [-0.07146298,  0.06076274,  0.01168944,  0.05277657, -0.08310723,
-            0.03206692,  0.07665695,  0.01208706,  0.02105136,  0.08956319],
-        [ 0.03116085, -0.03295061, -0.00728627, -0.06327747,  0.09470369,
-            -0.04780913,  0.04007186, -0.03284105,  0.07398437, -0.04552413],
-        [-0.03787254, -0.05571981, -0.01913537, -0.03058072, -0.00755432,
-            0.08395667,  0.02498072, -0.06876446,  0.04500464,  0.02154223],
-        [ 0.09074967, -0.04718851,  0.06821315, -0.02517602, -0.05895605,
-            -0.01899172,  0.02451249,  0.08281115, -0.05627331, -0.01844132],
-        [ 0.05606799,  0.0409985 ,  0.03010529,  0.0922409 ,  0.07236353,
-            0.06570616,  0.06357383, -0.05701375,  0.01474878, -0.083849  ],
-        [-0.06371698,  0.06283304, -0.08874637, -0.00407335, -0.07052661,
-            0.01899186,  0.02094433, -0.08659019,  0.05997972,  0.04893991]])
+    model.add(Dense(units=5, activation="relu"))
+    model.add(Dense(units=7, activation="relu"))
+    model.add(Dense(units=10, activation="relu"))
 
-    W2 = np.array([[ 0.09851542,  0.05684989,  0.04687111,  0.05487552, -0.09485053,
-            0.00629084,  0.04351717, -0.00227307, -0.03131499, -0.08653671],
-        [ 0.06254524, -0.09475556,  0.01492729,  0.05365662, -0.04601601,
-            -0.07603259, -0.07308764, -0.08724377,  0.02647461,  0.04530176],
-        [ 0.03494199, -0.07404412, -0.04609155,  0.01837269,  0.08588931,
-            0.08804513,  0.01531973,  0.01816559,  0.07313242,  0.09607388],
-        [ 0.07633987,  0.02209042, -0.00616161,  0.08418353, -0.01894071,
-            0.01094671, -0.09053868,  0.04314787,  0.09759002, -0.05386877],
-        [ 0.01420109, -0.05528696,  0.07563377, -0.05316769,  0.07495811,
-            -0.08314864,  0.04321045,  0.04312229, -0.01273049, -0.02591265]])
-
-    model.add(Dense(units=5, activation="relu", W=W2))
-    model.add(Dense(units=10, activation="relu", W=W1))
-
-    model.compile(loss=MeanSquaredError(), optimizer=GradientDescent(learning_rate=1))
+    model.compile(loss=SquaredError(), optimizer=GradientDescent(learning_rate=1e-3))
 
     return model
 
@@ -69,9 +39,7 @@ X =np.array([
     [0.97867845, 0.28647657, 0.47322402, 0.65723896, 0.49975968],
     [0.3189266, 0.35047049, 0.87625161, 0.5729564, 0.76918894],
     [0.59218391, 0.49830177, 0.64663148, 0.25750718, 0.37425824],
-    [0.48262878, 0.66153688, 0.72521139, 0.19981822, 0.47827814],
-    [0.47682251, 0.73232171, 0.66959598, 0.27834694, 0.67240806],
-    [0.53034278, 0.29313847, 0.75356527, 0.37260476, 0.41225283]
+    
 ])
 
 y = np.array(
@@ -93,57 +61,74 @@ y = np.array(
     [0.28436724, 0.12755897, 0.45587013, 0.63295314, 0.43680388, 0.63792616, 0.34525366, 0.27093688, 0.58192016, 0.32178187],
     [0.54683986, 0.67027233, 0.15533466, 0.20618806, 0.63527665, 0.12700752, 0.69976333, 0.55614821, 0.93416679, 0.65704773],
     [0.47060731, 0.32709192, 0.36605539, 0.36905334, 0.91669365, 0.40129441, 0.490115, 0.11774066, 0.01169672, 0.49753191],
-    [0.23637025, 0.82273958, 0.55313443, 0.65091556, 0.03152427, 0.33961996, 0.82966412, 0.50321997, 0.6941072, 0.07343263],
-    [0.96485431, 0.4508417, 0.59820356, 0.74207159, 0.19413417, 0.61839915, 0.45129896, 0.11382925, 0.18926571, 0.26083939],
-    [0.7025429, 0.10436152, 0.56542394, 0.09496172, 0.1338587, 0.30658647, 0.25992984, 0.64606254, 0.83698226, 0.69317169]
 ]
 
 )
+
+
+X_val = np.array([[0.48262878, 0.66153688, 0.72521139, 0.19981822, 0.47827814],
+    [0.47682251, 0.73232171, 0.66959598, 0.27834694, 0.67240806],
+    [0.53034278, 0.29313847, 0.75356527, 0.37260476, 0.41225283]])
+
+y_val = np.array([[0.23637025, 0.82273958, 0.55313443, 0.65091556, 0.03152427, 0.33961996, 0.82966412, 0.50321997, 0.6941072, 0.07343263],
+    [0.96485431, 0.4508417, 0.59820356, 0.74207159, 0.19413417, 0.61839915, 0.45129896, 0.11382925, 0.18926571, 0.26083939],
+    [0.7025429, 0.10436152, 0.56542394, 0.09496172, 0.1338587, 0.30658647, 0.25992984, 0.64606254, 0.83698226, 0.69317169]])
 X.shape, y.shape
 
 model = create_model()
 
 print(X.shape, y.shape)
-mse = MeanSquaredError()
+mse = SquaredError()
 
 
-print(mse.forward(model.predict(X), y))
+print(np.sum(abs(mse.forward(model.predict(X), y))))
 print("---------------------------------")
 
-dx=1e-10
+# dx=1e-5
 
-pred1 = model.predict(X)
-loss1 = (mse.forward(pred1, y))
+# pred1 = model.predict(X)
+# loss1 = (mse.forward(pred1, y))
 
-print(model._Sequential__layers[1].W_list[0][0][0], loss1)
+# print(model._Sequential__layers[1].W_list[0][0][0], loss1.shape)
 
-model._Sequential__layers[1]._Dense__W[0][0] += dx
+# model._Sequential__layers[1]._Dense__W[0][0] += dx
 
-pred2 = model.predict(X)
-loss2 = (mse.forward(pred2, y))
-print(model._Sequential__layers[1]._Dense__W[0][0], loss2)
-# print(model._Sequential__layers[1]._Dense__W.shape)
-print((loss2-loss1)/dx)
+# pred2 = model.predict(X)
+# loss2 = (mse.forward(pred2, y))
+# print(model._Sequential__layers[1]._Dense__W[0][0], loss2.shape)
+# # print(model._Sequential__layers[1]._Dense__W.shape)
+# print(((loss2-loss1)/dx).shape)
 
-model._Sequential__layers[1]._Dense__W[0][0] -= dx
+# model._Sequential__layers[1]._Dense__W[0][0] -= dx
 
-print("differ: ", model._Sequential__layers[1].W_list[0][0][0] - model._Sequential__layers[1]._Dense__W[0][0])
+# print("differ: ", model._Sequential__layers[1].W_list[0][0][0] - model._Sequential__layers[1]._Dense__W[0][0])
 print()
 
-model = create_model()
-print(mse.forward(model.predict(X), y))
+lr_schedule = lr_schedule(lr=1e-3, type="exponential", k=1e-3)
 
-model.fit(X, y, epoch=1)
+# model = create_model()
+model = load_model("model1")
+print(model._Sequential__layers[0]._Dense__W[0])
+# print(mse.forward(model.predict(X), y).shape)
+print("LOSS1", np.sum(abs(mse.forward(model.predict(X), y))))
+# model.fit(X, y, epoch=10000, batch_size=100, patient=5, validation=(X_val, y_val))
 y_pred = model.predict(X)
-print(model.save[0][0])
-first = (model._Sequential__layers[1].W_list[0][0][0])
-after = (model._Sequential__layers[1]._Dense__W[0][0])
+loss = (mse.forward(y_pred, y))
+print("LOSS2", np.sum(abs(loss)))
+# print(model.save[0][0].shape)
+# first = (model._Sequential__layers[1].W_list[0][0][0])
+# after = (model._Sequential__layers[1].W_list[1][0][0])
 
-print(first, after, first-after, model.save[0][0])
+# print(first-after)
 
 
-print("final difference: ", model.save[0][0] - (loss2-loss1)/dx)
+# print(np.sum(abs(loss2-loss1)/dx))
 
-print("-------------------------------")
+# print("-------------------------------")
 # print(mse.forward(y_pred, y))
 # model.fit(X, y)
+
+model.plot_loss()
+plt.show()
+
+model.save_model(model=model, name="model1")
